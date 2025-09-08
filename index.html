@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0a0e27">
+  <link rel="apple-touch-icon" href="manifest.webmanifest"> <!-- iOS usará el primer icono -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Plan 90 Días Security+ & Calistenia</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0e27;color:#e2e8f0;padding:10px;line-height:1.6}
+    .container{max-width:1200px;margin:0 auto;background:rgba(26,26,46,.95);border-radius:15px;border:1px solid rgba(59,130,246,.2);box-shadow:0 10px 30px rgba(0,0,0,.3)}
+    .header{background:linear-gradient(135deg,#2563eb,#1e40af);padding:20px;text-align:center;border-radius:15px 15px 0 0;position:relative;overflow:hidden}
+    .header::before{content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);transform:rotate(30deg)}
+    .header h1{font-size:1.8em;margin-bottom:8px;position:relative;text-shadow:0 2px 4px rgba(0,0,0,.3)}
+    .header p{position:relative;font-size:1.05em;opacity:.95}
+    .countdown{display:flex;justify-content:center;gap:15px;margin-top:12px;flex-wrap:wrap;position:relative}
+    .countdown-item{background:rgba(0,0,0,.3);padding:10px 15px;border-radius:8px;min-width:90px;box-shadow:0 4px 6px rgba(0,0,0,.1)}
+    .countdown-number{font-size:1.5em;font-weight:700;color:#60a5fa}
+    .countdown-label{font-size:.8em;opacity:.8}
+    .progress-container{width:100%;background:rgba(0,0,0,.2);height:8px;border-radius:4px;margin:15px 0 5px;overflow:hidden}
+    .progress-bar{height:100%;background:linear-gradient(90deg,#3b82f6,#10b981);border-radius:4px;width:0%;transition:width .5s ease}
+    .month-nav{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:rgba(0,0,0,.2);border-bottom:1px solid rgba(59,130,246,.1)}
+    .month-btn{background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.3);color:#60a5fa;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:600;transition:all .2s ease}
+    .month-btn:hover{background:rgba(59,130,246,.3);transform:translateY(-2px)}
+    .month-btn:active{transform:translateY(0)}
+    .month-title{font-size:1.2em;font-weight:600;color:#60a5fa;text-align:center}
+    .legend{display:flex;gap:10px;align-items:center;justify-content:center;padding:10px;font-size:.85em;opacity:.9}
+    .tag{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);padding:4px 8px;border-radius:999px}
+    .tag .dot{width:10px;height:10px;border-radius:50%}
+    .dot.blue{background:#3b82f6}.dot.green{background:#10b981}
+    .calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;padding:15px}
+    .day-header{text-align:center;padding:8px;font-weight:600;color:#60a5fa;font-size:.85em;background:rgba(37,99,235,.1);border-radius:5px}
+    .day-cell{background:rgba(15,23,42,.6);border-radius:8px;padding:8px 3px;text-align:center;cursor:pointer;border:2px solid transparent;position:relative;min-height:55px;transition:all .2s ease}
+    .day-cell:hover{transform:translateY(-3px);box-shadow:0 5px 15px rgba(0,0,0,.2)}
+    .day-cell.selected{background:rgba(37,99,235,.3);border-color:#3b82f6;transform:scale(1.05);z-index:2;box-shadow:0 5px 15px rgba(59,130,246,.3)}
+    .day-cell.today{border-color:#10b981;background:rgba(16,185,129,.15)}
+    .day-cell.completed{opacity:.85;position:relative;overflow:hidden}
+    .day-cell.completed::after{content:"✓";position:absolute;top:2px;right:2px;background:#10b981;color:#fff;width:18px;height:18px;border-radius:50%;font-size:12px;display:flex;align-items:center;justify-content:center}
+    .day-cell.empty{opacity:.2;pointer-events:none}
+    .day-cell.weekend{background:rgba(148,163,184,.08)}
+    .day-cell.workday{box-shadow:inset 0 0 0 1px rgba(16,185,129,.25)}
+    .day-number{font-size:.9em;font-weight:600}
+    .day-label{font-size:.65em;color:#60a5fa;margin-top:2px}
+    .indicators{display:flex;justify-content:center;gap:3px;margin-top:3px}
+    .dot{width:6px;height:6px;border-radius:50%}
+    .details{background:rgba(15,23,42,.8);border-radius:10px;padding:20px;margin:15px;min-height:220px;box-shadow:0 5px 15px rgba(0,0,0,.2)}
+    .details-header{font-size:1.1em;font-weight:600;margin-bottom:15px;color:#60a5fa;padding-bottom:10px;border-bottom:1px solid rgba(59,130,246,.2);display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center}
+    .complete-btn{background:rgba(16,185,129,.2);color:#10b981;border:1px solid #10b981;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:.85em;transition:all .2s ease}
+    .complete-btn:hover{background:rgba(16,185,129,.3)}
+    .complete-btn.completed{background:rgba(16,185,129,.45)}
+    .section{margin-bottom:15px;padding:12px;background:rgba(0,0,0,.3);border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,.1)}
+    .section.security{border-left:3px solid #3b82f6}
+    .section.workout{border-left:3px solid #10b981}
+    .section-title{font-size:1em;font-weight:600;margin-bottom:8px;display:flex;align-items:center}
+    .section-title svg{margin-right:8px}
+    .section.security .section-title{color:#3b82f6}
+    .section.workout .section-title{color:#10b981}
+    .notes{margin-top:10px;display:grid;gap:8px}
+    .notes textarea{width:100%;min-height:80px;background:rgba(2,6,23,.6);color:#e2e8f0;border:1px solid rgba(148,163,184,.2);border-radius:8px;padding:10px;resize:vertical}
+    .notes .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .notes input[type="number"]{width:90px;background:rgba(2,6,23,.6);color:#e2e8f0;border:1px solid rgba(148,163,184,.2);border-radius:8px;padding:8px}
+    .notes button{background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);color:#93c5fd;padding:8px 12px;border-radius:8px;cursor:pointer}
+    .empty-state{text-align:center;padding:30px;opacity:.5}
+    .controls{display:flex;justify-content:center;gap:10px;padding:10px 20px 20px}
+    .control-btn{background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.3);color:#60a5fa;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:600;transition:all .2s ease}
+    .control-btn:hover{background:rgba(59,130,246,.3)}
+    @media (max-width:768px){
+      .header h1{font-size:1.5em}
+      .countdown-item{padding:8px 12px;min-width:70px}
+      .countdown-number{font-size:1.3em}
+      .month-nav{flex-direction:column;gap:10px}
+      .controls{flex-direction:column;align-items:center}
+      .control-btn{width:100%;max-width:250px}
+    }
+    @media (max-width:480px){
+      .calendar-grid{gap:3px;padding:10px}
+      .day-cell{min-height:45px;padding:5px 2px}
+      .day-number{font-size:.8em}
+      .day-label{font-size:.6em}
+      .details{padding:15px;margin:10px}
+    }
+    .notification{position:fixed;top:20px;right:20px;background:rgba(16,185,129,.9);color:#fff;padding:15px;border-radius:8px;box-shadow:0 5px 15px rgba(0,0,0,.2);transform:translateX(100%);transition:transform .3s ease;z-index:1000;max-width:300px}
+    .notification.show{transform:translateX(0)}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎯 Plan 90 Días Security+ & Calistenia</h1>
+      <p id="planRange">Calculando…</p>
+      <div class="countdown">
+        <div class="countdown-item">
+          <div class="countdown-number" id="day">0</div>
+          <div class="countdown-label">Sesión SEC</div>
+        </div>
+        <div class="countdown-item">
+          <div class="countdown-number" id="remaining">90</div>
+          <div class="countdown-label">Sesiones restantes SEC</div>
+        </div>
+        <div class="countdown-item">
+          <div class="countdown-number" id="week">1</div>
+          <div class="countdown-label">Semana SEC</div>
+        </div>
+      </div>
+      <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+    </div>
+
+    <div class="month-nav">
+      <button class="month-btn" id="prevBtn">← Anterior</button>
+      <div class="month-title" id="monthTitle">Septiembre 2025</div>
+      <button class="month-btn" id="nextBtn">Siguiente →</button>
+    </div>
+
+    <div class="legend">
+      <span class="tag"><span class="dot blue"></span>SEC (L–V)</span>
+      <span class="tag"><span class="dot green"></span>WORK (L/Mi/Ju/Sá, Empuje/Tracción/Piernas + Core)</span>
+      <span class="tag">Fines de semana sombreado</span>
+    </div>
+
+    <div class="calendar-grid" id="calendar"></div>
+
+    <div class="details" id="details">
+      <div class="empty-state">📅 Selecciona un día para ver el plan</div>
+    </div>
+
+    <div class="controls">
+      <button class="control-btn" id="markTodayBtn">📌 Marcar Hoy como Completado</button>
+      <button class="control-btn" id="resetBtn">🔄 Reiniciar Progreso</button>
+      <button class="control-btn" id="exportBtn">💾 Exportar Datos</button>
+      <button class="control-btn" id="importBtn">📂 Importar Datos</button>
+    </div>
+  </div>
+
+  <div class="notification" id="notification">Progreso guardado correctamente</div>
+  <input type="file" id="importFile" accept=".json" style="display:none" />
+
+  <script>
+    // === Configuración ===
+    const START = new Date(2025, 8, 8); START.setHours(0,0,0,0);
+    const SEC_TOTAL = 90, WORK_TOTAL = 90;
+    // getDay: 0=Dom,1=Lun,2=Mar,3=Mié,4=Jue,5=Vie,6=Sáb
+    const SEC_DAYS  = new Set([1,2,3,4,5]); // L–V
+    const WORK_DAYS = new Set([1,3,4,6]);   // L, Mié, Jue, Sáb
+    let currentMonth = 8, currentYear = 2025;
+
+    // === Persistencia ===
+    const toISODate = d => new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString().slice(0,10);
+    const ymdKey = (y,m,d)=>`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    let completedDates = (()=>{ try{
+      const raw = JSON.parse(localStorage.getItem('completedDates'))||[];
+      return Array.isArray(raw)? Array.from(new Set(raw)).filter(s=>/^\d{4}-\d{2}-\d{2}$/.test(s)).sort() : [];
+    }catch{return [];}})();
+    let notesByDate = (()=>{ try{
+      return JSON.parse(localStorage.getItem('notesByDate')) || {}; // { "YYYY-MM-DD": {rpe:7, notes:"..." } }
+    }catch{return {};}})();
+
+    // Migración del modelo antiguo
+    (function migrateOld(){
+      try {
+        const old = JSON.parse(localStorage.getItem('completedDays'));
+        if(Array.isArray(old) && old.length){
+          for(const n of old){
+            if(Number.isInteger(n) && n>=1){
+              const d = new Date(START); d.setDate(d.getDate()+(n-1));
+              const k = toISODate(d);
+              if(!completedDates.includes(k)) completedDates.push(k);
+            }
+          }
+          localStorage.removeItem('completedDays');
+          saveProgress();
+        }
+      } catch {}
+    })();
+
+    // === Security+ (enriquecido) ===
+    const BASE_SEC = {
+      1:"Network+ Review: OSI, TCP/IP",2:"Domain 1.1: Control Categories",3:"Domain 1.1: Control Types",
+      4:"Domain 1.2: CIA Triad",5:"Domain 1.2: AAA & Accounting",6:"Lab: Práctica Domain 1",
+      7:"Review: Repaso semanal",8:"Domain 1.3: Security Frameworks",9:"Domain 1.3: Regulations",
+      10:"Domain 1.4: Risk Management",11:"Domain 1.4: Risk Strategies",12:"Domain 1.5: Governance",
+      13:"Lab: Risk Assessment",14:"Review: Domain 1 Complete",15:"Domain 2.1: Threat Actors",
+      16:"Domain 2.1: Threat Vectors",17:"Domain 2.2: Malware Types",18:"Domain 2.2: Ransomware",
+      19:"Domain 2.3: Social Engineering",20:"Lab: Malware Analysis",21:"Review: Threats Review",
+      22:"Domain 2.4: Network Attacks",23:"Domain 2.4: Wireless Attacks",24:"Domain 2.5: Application Attacks",
+      25:"Domain 2.5: Web Vulnerabilities",26:"Domain 2.6: Cryptographic Attacks",27:"Lab: Penetration Testing",
+      28:"Review: Domain 2 Complete",29:"Domain 3.1: Cloud Security",30:"Domain 3.1: Virtualization",
+      31:"Domain 3.2: Hardware Security",32:"Domain 3.2: Mobile Security",33:"Domain 3.3: Secure Protocols",
+      34:"Domain 3.3: Implementation",35:"Lab: Protocol Analysis",36:"Review: Domain 3 Complete",
+      37:"Domain 4.1: Identity Concepts",38:"Domain 4.1: Authentication",39:"Domain 4.2: Authorization",
+      40:"Domain 4.2: Access Controls",41:"Domain 4.3: Identity Services",42:"Domain 4.3: Management",
+      43:"Lab: Identity Management",44:"Review: Domain 4 Complete",45:"Domain 5.1: Policies",
+      46:"Domain 5.1: Procedures",47:"Domain 5.2: Awareness",48:"Domain 5.2: Training",
+      49:"Domain 5.3: Physical Security",50:"Domain 5.3: Environmental",51:"Lab: Policy Creation",
+      52:"Review: Domain 5 Complete",53:"Practice Test 1: Domains 1-2",54:"Practice Test 1: Review",
+      55:"Practice Test 2: Domains 3-4",56:"Practice Test 2: Review",57:"Practice Test 3: Full Exam",
+      58:"Practice Test 3: Review",59:"Weak Areas: Focus Study 1",60:"Weak Areas: Focus Study 2",
+      61:"Final Review: Domain 1",62:"Final Review: Domain 2",63:"Final Review: Domain 3",
+      64:"Final Review: Domain 4",65:"Final Review: Domain 5",66:"Practice Test 4: Timed",
+      67:"Practice Test 4: Review",68:"Practice Test 5: Timed",69:"Practice Test 5: Review",
+      70:"Flashcards: Key Terms",71:"Flashcards: Acronyms",72:"Flashcards: Concepts",
+      73:"Lab: Final Practical",74:"Final Comprehensive Review",75:"Rest Day: Mental Preparation",
+      76:"EXAM DAY: Security+",77:"Post-Exam: Analysis",78:"Cybersecurity Roadmap Planning",
+      79:"Next Certifications Research",80:"Professional Development",81:"Networking Strategies",
+      82:"LinkedIn Profile Update",83:"Resume Update",84:"Job Search Techniques",
+      85:"Interview Preparation",86:"Portfolio Development",87:"Mock Interviews",
+      88:"Industry Trends Research",89:"Continuing Education Plan",90:"Career Goals Setting"
+    };
+    const secWeek = i => Math.ceil(i/5);
+    function getSEC(i){
+      const title = BASE_SEC[i] || '—';
+      const w = secWeek(i);
+      const quizQ   = w < 4 ? 15 : w < 8 ? 20 : 25;
+      const labMins = w < 4 ? 30 : w < 8 ? 45 : 60;
+      const base = `Objetivo: dominar el tema y aplicarlo.
+Tareas: lectura guiada (resumen 200 palabras) · vídeo 1x · Lab en VM (${labMins} min) · Quiz ${quizQ} preguntas.`;
+      let extra = '';
+      if (i % 7 === 0) extra = ' + Repaso espaciado (Anki 15 min).';
+      if ([6,13,20,27,35,43,51,73].includes(i)) extra = ' + Laboratorio con checklist y capturas.';
+      if ([53,55,57,66,68].includes(i)) extra = ' + Simulacro cronometrado (90 min).';
+      if ([54,56,58,67,69].includes(i)) extra = ' + Post-mortem: clasifica fallos y crea 10 flashcards.';
+      const domainHints = [
+        [1,14,'Enfoque: gobernanza/riesgo · mapa de frameworks y controles.'],
+        [15,28,'Enfoque: amenazas/ataques · kill chain + MITRE ATT&CK.'],
+        [29,36,'Enfoque: arquitectura/protocolos · tabla de puertos seguros.'],
+        [37,44,'Enfoque: IAM · diagrama SSO/OAuth2/OIDC.'],
+        [45,52,'Enfoque: políticas/concienciación · redacta 1 política breve.'],
+      ];
+      const hint = (domainHints.find(([a,b]) => i>=a && i<=b) || [0,0,''])[2];
+      return `${title}\n${base}${extra}\n${hint}`;
+    }
+
+    // === Calistenia (Empuje/Tracción/Piernas) con core integrado ===
+    // i = índice de sesión WORK (1..90). 4 sesiones por semana.
+    // Patrón semanal: [Empuje, Tracción, Piernas, ExtraRotatoria]
+    function workWeek(i){ return Math.ceil(i/4); }
+    function focusOf(i){
+      const w = workWeek(i);
+      const order = ['Empuje','Tracción','Piernas','Extra'];
+      const pos = (i-1)%4;
+      const base = order[pos];
+      if (base !== 'Extra') return base;
+      const rotation = ['Empuje','Tracción','Piernas'];
+      return rotation[(w-1)%3]; // semana 1 extra Empuje, 2 extra Tracción, 3 extra Piernas, 4 vuelve Empuje...
+    }
+    function getWORK(i){
+      const block = i<=22 ? 1 : i<=44 ? 2 : i<=66 ? 3 : 4;
+      const rest = block===1 ? '90s' : block===2 ? '75s' : block===3 ? '60s' : '45–60s';
+      const rpe  = block===1 ? 'RPE 7' : block===2 ? 'RPE 8' : block===3 ? 'RPE 8.5' : 'RPE 9';
+      const tempo= block<=2 ? '3011' : '3111';
+      const f = focusOf(i);
+
+      const warmup = `Warm-up: 8–10min (movilidad torácica/caderas/escápulas) + activación elástica.`;
+      let main = '';
+      if (f==='Empuje'){
+        main = `Bloque ${block} — Empuje:
+• Push-ups variantes ${block>=3?'5x12–18':'4x12–15'} @${rpe} (tempo ${tempo})
+• Dips ${block>=3?'5x8–12':'4x8–10'}
+• Pike/HSPU técnica 6x3
+Core integrado: Hollow 4x30–45s + Plancha 3x60s
+Descanso ${rest}. Finisher: push-ups tempo 2xAMRAP.`;
+      } else if (f==='Tracción'){
+        main = `Bloque ${block} — Tracción:
+• Pull-up ${block>=3?'5x5 + AMRAP final':'4x6–8'} @${rpe} (tempo ${tempo})
+• Rows 4x10–12
+• Iso hold (chin over bar) 3x20s
+Core integrado: Leg raises ${block>=3?'5x12':'4x10'} + Anti-rotación 3x30s
+Descanso ${rest}. Finisher: scap pulls 2x15.`;
+      } else { // Piernas
+        main = `Bloque ${block} — Piernas:
+• Squat/Pistol progresiones ${block>=3?'5x5–8':'4x8–12'} @${rpe}
+• Lunges/Step-ups 4x12
+• Nordic/Curl 4x6–8
+Core integrado: Ab-wheel/Rollouts 4x8–12 + Side plank 3x30s/lado
+Descanso ${rest}. Finisher: sprints suaves 6x40m o carry 3x40m.`;
+      }
+      return `${f}\n${warmup}\n${main}`;
+    }
+    function workTitle(i){
+      const f = focusOf(i);
+      const b = i<=22 ? 1 : i<=44 ? 2 : i<=66 ? 3 : 4;
+      return `Calistenia — ${f} (Bloque ${b})`;
+    }
+
+    // === Índices por patrón ===
+    function indexByPattern(date, allowedDays, total){
+      if (date < START) return null;
+      const target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      target.setHours(0,0,0,0);
+      if (!allowedDays.has(target.getDay())) return null;
+
+      let count = 0;
+      const probe = new Date(START); probe.setHours(0,0,0,0);
+      while (probe <= target){
+        if (allowedDays.has(probe.getDay())){
+          count++;
+          if (count > total) return null;
+        }
+        probe.setDate(probe.getDate()+1);
+      }
+      return (count>=1 && count<=total) ? count : null;
+    }
+    const getSecIndex  = d => indexByPattern(d, SEC_DAYS,  SEC_TOTAL);
+    const getWorkIndex = d => indexByPattern(d, WORK_DAYS, WORK_TOTAL);
+
+    // === Fechas de fin ===
+    function endDateBySessions(startDate, sessions, allowedDays){
+      const d = new Date(startDate); d.setHours(0,0,0,0);
+      let done = 0;
+      while (done < sessions){
+        if (allowedDays.has(d.getDay())) done++;
+        if (done === sessions) break;
+        d.setDate(d.getDate()+1);
+      }
+      return d;
+    }
+    function renderHeaderRange(){
+      const endSEC  = endDateBySessions(START, SEC_TOTAL,  SEC_DAYS);
+      const endWORK = endDateBySessions(START, WORK_TOTAL, WORK_DAYS);
+      const fmt = d => d.toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'});
+      const text = `SEC (L–V): ${fmt(START)} – ${fmt(endSEC)} · Calistenia (L/Mi/Ju/Sá): ${fmt(START)} – ${fmt(endWORK)}`;
+      const el = document.getElementById('planRange'); if(el) el.textContent = text;
+    }
+
+    // === Notificaciones / guardado ===
+    function showNotification(text){
+      const n = document.getElementById('notification'); n.textContent = text;
+      n.classList.add('show'); setTimeout(()=>n.classList.remove('show'), 1800);
+    }
+    function saveProgress(){
+      localStorage.setItem('completedDates', JSON.stringify(completedDates));
+      localStorage.setItem('notesByDate', JSON.stringify(notesByDate));
+      updateProgress();
+    }
+
+    // === Progreso SEC ===
+    function updateProgress(){
+      const secDone = completedDates.map(s=>new Date(s)).filter(d => d>=START && SEC_DAYS.has(d.getDay())).length;
+      const secPct = Math.min(100, (secDone / SEC_TOTAL)*100);
+      const today = new Date(); today.setHours(0,0,0,0);
+      const secIdxToday = getSecIndex(today);
+      const remainingSec = secIdxToday ? Math.max(0, SEC_TOTAL - secIdxToday) : SEC_TOTAL;
+
+      document.getElementById('day').textContent = secIdxToday ?? 0;
+      document.getElementById('remaining').textContent = remainingSec;
+      document.getElementById('week').textContent = secIdxToday ? Math.ceil(secIdxToday/5) : 0;
+      document.getElementById('progressBar').style.width = `${secPct}%`;
+    }
+
+    // === Calendario ===
+    const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    let lastSelectedKey = null;
+
+    function generateCalendar(){
+      const cal = document.getElementById('calendar'); cal.innerHTML = '';
+
+      ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'].forEach(d=>{
+        const h = document.createElement('div'); h.className='day-header'; h.textContent=d; cal.appendChild(h);
+      });
+
+      const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
+      const daysInMonth = new Date(currentYear, currentMonth+1, 0).getDate();
+      const today = new Date(); today.setHours(0,0,0,0);
+
+      for(let i=0;i<firstDayIndex;i++){ const e = document.createElement('div'); e.className='day-cell empty'; cal.appendChild(e); }
+
+      for(let day=1; day<=daysInMonth; day++){
+        const cell = document.createElement('div'); cell.className='day-cell';
+        const date = new Date(currentYear, currentMonth, day); date.setHours(0,0,0,0);
+
+        const dow = date.getDay();
+        if(dow===0 || dow===6) cell.classList.add('weekend');
+
+        const secIdx = getSecIndex(date);
+        const workIdx = getWorkIndex(date);
+
+        if(workIdx) cell.classList.add('workday');
+
+        const iso = toISODate(date);
+        if (completedDates.includes(iso)) cell.classList.add('completed');
+        if(date.getTime() === today.getTime()) cell.classList.add('today');
+
+        const num = document.createElement('div'); num.className='day-number'; num.textContent = day; cell.appendChild(num);
+
+        if (secIdx || workIdx){
+          const label = document.createElement('div'); label.className='day-label';
+          const tags = [];
+          if (secIdx)  tags.push(`SEC ${secIdx}`);
+          if (workIdx) tags.push(`WORK ${workIdx}`);
+          label.textContent = tags.join(' · '); cell.appendChild(label);
+
+          const ind = document.createElement('div'); ind.className='indicators';
+          if(secIdx){ const d = document.createElement('div'); d.className='dot blue'; ind.appendChild(d); }
+          if(workIdx){ const d = document.createElement('div'); d.className='dot green'; ind.appendChild(d); }
+          cell.appendChild(ind);
+
+          cell.addEventListener('click', (e)=> showDay(e, day, date, secIdx, workIdx));
+          if(lastSelectedKey === ymdKey(currentYear,currentMonth,day)){
+            cell.classList.add('selected');
+            setTimeout(()=>showDay({currentTarget:cell}, day, date, secIdx, workIdx),0);
+          }
+        } else {
+          cell.classList.add('empty');
+        }
+
+        cal.appendChild(cell);
+      }
+
+      updateProgress();
+    }
+
+    function showDay(evt, day, date, secIdx, workIdx){
+      document.querySelectorAll('.day-cell').forEach(c=>c.classList.remove('selected'));
+      if(evt && evt.currentTarget) evt.currentTarget.classList.add('selected');
+      lastSelectedKey = ymdKey(currentYear,currentMonth,day);
+
+      const iso = toISODate(date);
+      const isCompleted = completedDates.includes(iso);
+      const details = document.getElementById('details');
+
+      let html = `
+        <div class="details-header">
+          ${day} de ${months[currentMonth]} ${currentYear}
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="complete-btn ${isCompleted ? 'completed' : ''}" onclick="toggleDate('${iso}')">
+              ${isCompleted ? 'Completado ✓' : 'Marcar como Completado'}
+            </button>
+          </div>
+        </div>
+      `;
+
+      if (secIdx){
+        html += `
+          <div class="section security">
+            <div class="section-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Security+ — Sesión ${secIdx}/${SEC_TOTAL}
+            </div>
+            <div style="white-space:pre-line">${getSEC(secIdx)}</div>
+            <div style="margin-top:10px;font-size:0.85em;opacity:0.8">⏰ 08:00–11:00 | Semana ${Math.ceil(secIdx/5)}</div>
+          </div>
+        `;
+      } else {
+        html += `
+          <div class="section security">
+            <div class="section-title">Security+</div>
+            <div>Descanso (fin de semana)</div>
+          </div>
+        `;
+      }
+
+      if (workIdx){
+        html += `
+          <div class="section workout">
+            <div class="section-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17 6c0 .87-.36 1.73-1 2.36l-1.5 1.5A4 4 0 0114 6c0-1.13.44-2.17 1.17-3a4 4 0 016.24 4.24l-3.42 3.42a2 2 0 00-1.5.58l-4.83 4.83a2 2 0 01-2.83 0L5.9 15.5a2 2 0 010-2.83l4.83-4.83a2 2 0 00.58-1.5L8.76 3.76A4 4 0 0113 2c.83 0 1.63.25 2.3.7.67.46 1.2 1.1 1.5 1.85.3.75.38 1.57.2 2.35-.18.78-.6 1.5-1.2 2.1l-.6.6" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </div>
+            <div style="white-space:pre-line">
+              <strong>${workTitle(workIdx)}</strong>
+              
+${getWORK(workIdx)}
+            </div>
+            <div style="margin-top:10px;font-size:0.85em;opacity:0.8">⏰ 16:00–17:30 | Parque</div>
+          </div>
+        `;
+      } else {
+        html += `
+          <div class="section workout">
+            <div class="section-title">Calistenia</div>
+            <div>Descanso (no programado hoy)</div>
+          </div>
+        `;
+      }
+
+      // Notas / RPE
+      const saved = notesByDate[iso] || { rpe:'', notes:'' };
+      html += `
+        <div class="section">
+          <div class="section-title">📝 Notas & RPE</div>
+          <div class="notes">
+            <div class="row">
+              <label for="rpeInput">RPE:</label>
+              <input id="rpeInput" type="number" min="1" max="10" step="0.5" value="${saved.rpe ?? ''}" />
+              <button onclick="saveNotes('${iso}')">Guardar</button>
+            </div>
+            <textarea id="notesInput" placeholder="Sensaciones, ajustes, fallos que revisar...">${(saved.notes ?? '')}</textarea>
+          </div>
+        </div>
+      `;
+
+      details.innerHTML = html;
+    }
+
+    function saveNotes(iso){
+      const rpe = document.getElementById('rpeInput')?.value ?? '';
+      const notes = document.getElementById('notesInput')?.value ?? '';
+      notesByDate[iso] = { rpe, notes };
+      saveProgress();
+      showNotification('Notas guardadas');
+    }
+
+    function toggleDate(iso){
+      const i = completedDates.indexOf(iso);
+      if(i>-1) completedDates.splice(i,1); else completedDates.push(iso);
+      completedDates = Array.from(new Set(completedDates)).sort();
+      saveProgress(); generateCalendar(); showNotification('Progreso actualizado');
+    }
+
+    function prevMonth(){ currentMonth--; if(currentMonth<0){ currentMonth=11; currentYear--; } updateMonth(); }
+    function nextMonth(){ currentMonth++; if(currentMonth>11){ currentMonth=0; currentYear++; } updateMonth(); }
+    function updateMonth(){ document.getElementById('monthTitle').textContent = `${months[currentMonth]} ${currentYear}`; generateCalendar(); }
+
+    function markToday(){
+      const today = new Date(); today.setHours(0,0,0,0);
+      const iso = toISODate(today);
+      if(completedDates.includes(iso)){ showNotification('Hoy ya estaba marcado como completado'); return; }
+      completedDates.push(iso); completedDates.sort(); saveProgress();
+      currentMonth = today.getMonth(); currentYear = today.getFullYear(); updateMonth();
+      showNotification('Hoy marcado como completado');
+    }
+
+    function resetProgress(){
+      if(confirm('¿Seguro que quieres reiniciar todo tu progreso?')){
+        completedDates = []; notesByDate = {}; saveProgress(); generateCalendar();
+        document.getElementById('details').innerHTML = '<div class="empty-state">📅 Selecciona un día para ver el plan</div>';
+        showNotification('Progreso reiniciado');
+      }
+    }
+
+    // Exportar/Importar (incluye notas)
+    function exportData(){
+      const payload = {
+        completedDates, notesByDate,
+        exportedAt: new Date().toISOString(),
+        plan: { start: toISODate(START), SEC_TOTAL, WORK_TOTAL,
+                SEC_DAYS: Array.from(SEC_DAYS), WORK_DAYS: Array.from(WORK_DAYS) }
+      };
+      const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = `plan_export_${toISODate(new Date())}.json`;
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      showNotification('Datos exportados');
+    }
+    function importData(){
+      const input = document.getElementById('importFile'); input.value=''; input.click();
+    }
+    document.getElementById('importFile').addEventListener('change', (e)=>{
+      const file = e.target.files?.[0]; if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        try{
+          const data = JSON.parse(reader.result);
+          if(!data || !Array.isArray(data.completedDates)) throw new Error('Formato inválido');
+          completedDates = data.completedDates.filter(s=>/^\d{4}-\d{2}-\d{2}$/.test(s)).sort();
+          notesByDate = (data.notesByDate && typeof data.notesByDate==='object') ? data.notesByDate : {};
+          saveProgress(); generateCalendar(); showNotification('Datos importados correctamente');
+        }catch(err){ console.error(err); showNotification('Error al importar: formato no válido'); }
+      };
+      reader.readAsText(file);
+    });
+
+    // Eventos UI
+    document.getElementById('prevBtn').addEventListener('click', prevMonth);
+    document.getElementById('nextBtn').addEventListener('click', nextMonth);
+    document.getElementById('markTodayBtn').addEventListener('click', markToday);
+    document.getElementById('resetBtn').addEventListener('click', resetProgress);
+    document.getElementById('exportBtn').addEventListener('click', exportData);
+    document.getElementById('importBtn').addEventListener('click', importData);
+
+    // Init
+    (function init(){
+      document.getElementById('monthTitle').textContent = `${months[currentMonth]} ${currentYear}`;
+      updateProgress(); generateCalendar(); renderHeaderRange();
+      const today = new Date();
+      if (today >= START){ currentMonth=today.getMonth(); currentYear=today.getFullYear(); updateMonth(); renderHeaderRange(); }
+    })();
+  </script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(console.error);
+    });
+  }
+</script>  
+</body>
+</html>
