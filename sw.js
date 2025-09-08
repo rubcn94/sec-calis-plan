@@ -1,5 +1,5 @@
 // sw.js — caché offline simple
-const CACHE_NAME = 'sec-calis-v1';
+const CACHE_NAME = 'sec-calis-v3';
 const ASSETS = [
   './',
   './index.html',
